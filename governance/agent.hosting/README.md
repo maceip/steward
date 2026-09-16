@@ -57,6 +57,8 @@ Live application transactions are appended below when performed.
 | `adns_set_governor` operator key `3552372e…` → **trapdoor** | `2.303439` | Accepted |
 | `set_member` + `adns_set_governor` steward agent `11c6ae7f…` (key on VM-worker, `agenthost`, `/var/lib/agentdns-steward`) | `2.303474` create, `2.303498` trapdoor override, `2.303603` ack | Active |
 | `adns_set_governance_parameters {min_agent_yes:1, open_join:true}` proposed by the trapdoor **with abstention** | `2.303625` create | **Accepted by the steward's vote alone** (proposal `c2837a53…`, final votes `{11c6ae7f: true}`); verdict `approve` recorded; settled by the steward |
+| `adns_set_release_authority` D (`did:x509:0:sha256:1YRq01vo…`, svn 0) | `2.330709` | Accepted (proposal `eb707021…`, trapdoor override) |
+| `set_constitution` v0.2.0 (`1a05b637…`, adds `adns_ksk_rollover`) | `2.330731` | Accepted (proposal `359aedf5…`, trapdoor override) |
 
 The steward runs every 10 minutes on VM-worker (`agentdns-steward.timer`) with a
 24-hour trap-door window on high-impact proposals. The operator key is now a

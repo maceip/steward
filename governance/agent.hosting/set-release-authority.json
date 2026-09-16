@@ -1,0 +1,14 @@
+[
+  {
+    "name": "adns_set_release_authority",
+    "args": {
+      "authority": {
+        "did": "did:x509:0:sha256:1YRq01voPnpplmc8U1z8JuIM6iTla__bGbck-J6rd7c::subject:CN:agent.hosting-release-authority",
+        "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEK3mWuZHlB8zegXNUcQjq/5Q3V1jv\nZ9D7vC4LVOhN2+v1r7RS0rlP/klVyd1OKtfRaKgyKkk0l39Mtxr8xpL3Uw==\n-----END PUBLIC KEY-----\n",
+        "svn": 0,
+        "valid_from": 1789570015,
+        "valid_until": 2104930315
+      }
+    }
+  }
+]

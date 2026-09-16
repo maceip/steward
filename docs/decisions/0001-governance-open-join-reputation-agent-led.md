@@ -64,6 +64,11 @@ the `adns_*` governor actions:
    party holds a member key; the steward's key moving to a third-provider
    VPS separates infrastructure, not people.
 
+   *Applied 2026-09-16:* D minted on operator laptop (`did:x509:0:sha256:1YRq01voPnpplmc8U1z8JuIM6iTla__bGbck-J6rd7c::subject:CN:agent.hosting-release-authority`),
+   committed via `adns_set_release_authority` at tx `2.330709` (svn 0).
+   Constitution v0.2.0 (`1a05b637976e99334f6a1a66ad7eaedf82529919a8a36fc3b4d0731006fa76f1`,
+   adding `adns_ksk_rollover`) committed at tx `2.330731`.
+
 ## Lineage
 
 TUF/Sigstore root-signing: thresholds over named keyholders, expiry-driven
