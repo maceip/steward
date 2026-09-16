@@ -161,3 +161,61 @@ Concretely:
    under a D-signed `P(svn=2)`. — 1 day plus build time
 5. Pin D in `infra/trust/pins.json`, drop the `release_authority: null`
    warnings, and let `verify` check the policy signer.
+
+## 7. Correction and references (added after review)
+
+**Correction.** CCF *has* a governance stack; it is part of the framework and
+runs inside every CCF network, ours included: the constitution
+(`validate`/`resolve`/`apply` JS executed in the enclave), members with
+COSE-signed proposals and ballots, receipted `public:ccf.gov.*` tables. What
+does not exist is an external CCF network run by a third party that we could
+delegate to. Section 1 should be read with that distinction.
+
+**CCF documentation**
+
+- Governance: https://microsoft.github.io/CCF/main/governance/index.html
+- Constitution: https://microsoft.github.io/CCF/main/governance/constitution.html
+- Proposals and voting: https://microsoft.github.io/CCF/main/governance/proposals.html
+- Adding/activating a member: https://microsoft.github.io/CCF/main/governance/adding_member.html
+- Member keys in HSM: https://microsoft.github.io/CCF/main/governance/hsm_keys.html
+- Opening a network: https://microsoft.github.io/CCF/main/governance/open_network.html
+- Recovery: https://microsoft.github.io/CCF/main/operations/recovery.html
+- SNP platform: https://microsoft.github.io/CCF/main/operations/platforms/snp.html
+- Receipts: https://microsoft.github.io/CCF/main/audit/receipts.html
+- Default constitution our live one extends (CCF 7.0.15, 2026-09-11):
+  https://github.com/microsoft/CCF/blob/ccf-7.0.15/samples/constitutions/default/actions.js
+
+**Reference network to copy: `microsoft/scitt-ccf-ledger`**
+
+The open-source application behind Microsoft's Signing Transparency (GA, in
+production for Microsoft's own service builds). Last commit 2026-09-14.
+
+- Repository: https://github.com/microsoft/scitt-ccf-ledger
+- Production service: https://learn.microsoft.com/en-us/azure/confidential-ledger/about-microsoft-signing-transparency-ledger
+- Constitution layout (operator half + application half, same shape as ours):
+  `app/constitution/{actions.js, validate.js, resolve.js, apply.js, scitt.js}`
+- `resolve.js` is a real majority rule over active members — the first file to
+  copy into agentdns.
+- Registration policy is governed by `set_scitt_configuration` as a JS or
+  Rego script over the statement's protected headers, e.g. issuer
+  `did:x509:…::eku:…` and `_svn >= 0`:
+  https://github.com/microsoft/scitt-ccf-ledger/blob/main/docs/configuration.md
+- Reproducible builds: https://github.com/microsoft/scitt-ccf-ledger/blob/main/docs/reproducibility.md
+- Runs on SNP; "virtual" mode for development (`docker/run-dev.sh`,
+  `docker/run-dev-cluster.sh`).
+
+**Other**
+
+- `microsoft/ccfdns` (research prototype agentdns was ported from; last commit
+  2025-10-06; not an active production network): https://github.com/microsoft/ccfdns
+- Sigstore/Fulcio `did:x509` identities: https://docs.sigstore.dev/certificate_authority/oidc-in-fulcio/
+- Managed CCF deprecation: https://learn.microsoft.com/en-us/azure/confidential-ledger/managed-confidential-consortium-framework-migration
+
+**What copying scitt-ccf-ledger buys.** A second network running their
+unmodified, reproducible app; our members under their majority `resolve.js`;
+a `set_scitt_configuration` policy admitting only statements from our release
+signer DID with an advancing `_svn`; SCITT receipts that the agentdns
+constitution verifies before accepting a node-join or appraisal policy. D is
+then the release ledger's service identity; the release signer key only
+produces statements and cannot make anything "approved" without the ledger's
+members and policy.
