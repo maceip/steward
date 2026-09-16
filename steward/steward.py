@@ -118,21 +118,33 @@ def run_checks(proposal, *, compose, live_join_policy, highest_accepted_svn, par
         else:
             checks.append(check("routine_schema", True, f"{name}: constitution validate() is the check"))
     if llm is not None:
-        verdict = llm(proposal)
-        checks.append(check("llm_review", bool(verdict.get("approve")), verdict.get("rationale", "")[:1024]))
+        try:
+            verdict = llm(proposal)
+            # Decision 12: LLM review hook is advisory only:
+            # The model may add a finding, but cannot override a deterministic check nor cast the vote alone.
+            # Passing deterministic checks cannot be failed by LLM, and failing deterministic checks cannot be passed.
+            passed = bool(verdict.get("approve", True))
+            finding = verdict.get("finding") or verdict.get("rationale") or ""
+            checks.append(check("llm_review", True, f"advisory: {'approve' if passed else 'finding: ' + str(finding)[:1000]}"))
+        except Exception as e:
+            # On model error or timeout, proceed on deterministic checks alone and log failure
+            checks.append(check("llm_review", True, f"advisory: skipped due to error: {e}"))
     return checks, high
 
 
 def llm_command(command):
     def review(proposal):
-        proc = subprocess.run(command, shell=True, input=json.dumps(proposal), capture_output=True, text=True, timeout=600)
-        if proc.returncode != 0:
-            return {"approve": False, "rationale": f"llm reviewer failed: {proc.stderr[-300:]}"}
         try:
-            out = json.loads(proc.stdout)
-            return {"approve": bool(out.get("approve")), "rationale": str(out.get("rationale", ""))}
-        except json.JSONDecodeError:
-            return {"approve": False, "rationale": "llm reviewer returned non-JSON"}
+            proc = subprocess.run(command, shell=True, input=json.dumps(proposal), capture_output=True, text=True, timeout=600)
+            if proc.returncode != 0:
+                return {"approve": True, "finding": f"llm reviewer failed: {proc.stderr[-300:]}"}
+            try:
+                out = json.loads(proc.stdout)
+                return {"approve": bool(out.get("approve", True)), "finding": str(out.get("finding") or out.get("rationale", ""))}
+            except json.JSONDecodeError:
+                return {"approve": True, "finding": "llm reviewer returned non-JSON"}
+        except Exception as e:
+            return {"approve": True, "finding": f"llm execution error: {e}"}
     return review
 
 
@@ -184,10 +196,31 @@ def highest_accepted_svn(ledger):
     return best
 
 
-def review(ledger, state_dir, *, min_age, compose, llm=None, dry_run=False, now=None, params=None):
+def notify_trapdoor_email(proposal_id, actions, first_seen, settle_time, operator_email="work@agent.hosting"):
+    """Decision 13: notify operator of high-impact proposal entering trap-door window."""
+    try:
+        subject = f"[Steward Notice] High-Impact Proposal {proposal_id} pending trap-door window"
+        body = (
+            f"Steward observed high-impact proposal:\n"
+            f"Proposal ID: {proposal_id}\n"
+            f"Actions: {', '.join(actions)}\n"
+            f"Observed at: {time.strftime('%Y-%m-%d %H:%M:%SZ', time.gmtime(first_seen))}\n"
+            f"Settle time (window expiry): {time.strftime('%Y-%m-%d %H:%M:%SZ', time.gmtime(settle_time))}\n"
+            f"Window duration: {int(settle_time - first_seen)} seconds (36 hours)\n\n"
+            f"To object, the human trapdoor member should cast a rejecting ballot or withdraw the proposal before the settle time.\n"
+        )
+        msg = f"From: steward@agent.hosting\r\nTo: {operator_email}\r\nSubject: {subject}\r\n\r\n{body}"
+        proc = subprocess.run(["sendmail", "-t"], input=msg, text=True, capture_output=True, timeout=10)
+        return proc.returncode == 0
+    except Exception:
+        return False
+
+
+def review(ledger, state_dir, *, min_age, compose, llm=None, dry_run=False, now=None, params=None, operator_email="work@agent.hosting"):
     now = now or time.time()
     state_path = Path(state_dir) / "steward-state.json"
-    state = json.loads(state_path.read_text()) if state_path.exists() else {"seen": {}, "voted": {}, "verdicts": {}}
+    state = json.loads(state_path.read_text()) if state_path.exists() else {"seen": {}, "voted": {}, "verdicts": {}, "notified": {}}
+    state.setdefault("notified", {})
     results = []
     live_join = None
     for p in ledger.proposals():
@@ -214,11 +247,16 @@ def review(ledger, state_dir, *, min_age, compose, llm=None, dry_run=False, now=
                 ledger.ballot(pid, False)
                 state["voted"][pid] = False
         elif high and now - first_seen < min_age:
+            settle_time = first_seen + min_age
             entry["action"] = f"waiting trap-door window ({int(min_age - (now - first_seen))}s left)"
-            if not dry_run and pid not in state["verdicts"]:
-                ledger.propose([{"name": "adns_record_verdict", "args": {"proposal_id": pid, "verdict": "approve", "checks": checks,
-                                 "evidence": {"steward": ledger.member_id}, "rationale": "checks passed; ballot deferred for the trap-door window"}}])
-                state["verdicts"][pid] = "approve"
+            if not dry_run:
+                if pid not in state["notified"]:
+                    notify_trapdoor_email(pid, names, first_seen, settle_time, operator_email=operator_email)
+                    state["notified"][pid] = now
+                if pid not in state["verdicts"]:
+                    ledger.propose([{"name": "adns_record_verdict", "args": {"proposal_id": pid, "verdict": "approve", "checks": checks,
+                                     "evidence": {"steward": ledger.member_id}, "rationale": "checks passed; ballot deferred for the trap-door window"}}])
+                    state["verdicts"][pid] = "approve"
         else:
             entry["action"] = "approve"
             if not dry_run:
@@ -283,9 +321,10 @@ def main():
     parser.add_argument("--member-key", type=Path)
     parser.add_argument("--member-cert", type=Path)
     parser.add_argument("--state", type=Path, default=Path("/var/lib/agentdns-steward"))
-    parser.add_argument("--min-age-seconds", type=int, default=24 * 3600)
+    parser.add_argument("--min-age-seconds", type=int, default=36 * 3600)
     parser.add_argument("--llm-command")
     parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--operator-email", default="work@agent.hosting")
     parser.add_argument("--cert", type=Path); parser.add_argument("--enc-pubkey", type=Path)
     parser.add_argument("--class", dest="member_class", default="agent", choices=("agent", "trapdoor")); parser.add_argument("--note", default="")
     args = parser.parse_args()
@@ -300,7 +339,7 @@ def main():
         parser.error("--connect-ip, --service-cert, --member-key and --member-cert are required")
     ledger = Ledger(args.url, args.connect_ip, args.service_cert, args.member_key, args.member_cert)
     if args.mode == "review":
-        out = review(ledger, args.state, min_age=args.min_age_seconds, compose=compose, llm=llm_command(args.llm_command) if args.llm_command else None, dry_run=args.dry_run)
+        out = review(ledger, args.state, min_age=args.min_age_seconds, compose=compose, llm=llm_command(args.llm_command) if args.llm_command else None, dry_run=args.dry_run, operator_email=args.operator_email)
     elif args.mode == "settle":
         out = settle(ledger, args.state, dry_run=args.dry_run)
     else:

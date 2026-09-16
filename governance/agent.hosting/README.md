@@ -59,6 +59,13 @@ Live application transactions are appended below when performed.
 | `adns_set_governance_parameters {min_agent_yes:1, open_join:true}` proposed by the trapdoor **with abstention** | `2.303625` create | **Accepted by the steward's vote alone** (proposal `c2837a53…`, final votes `{11c6ae7f: true}`); verdict `approve` recorded; settled by the steward |
 | `adns_set_release_authority` D (`did:x509:0:sha256:1YRq01vo…`, svn 0) | `2.330709` | Accepted (proposal `eb707021…`, trapdoor override) |
 | `set_constitution` v0.2.0 (`1a05b637…`, adds `adns_ksk_rollover`) | `2.330731` | Accepted (proposal `359aedf5…`, trapdoor override) |
+| `set_constitution` v0.2.1 (`6fd2190b…`, relaxes validation during rollover) | `2.354622` | Accepted |
+| `adns_set_node_join_policy` P(svn=1) (opens upgrade window) | `2.354714` | Accepted |
+| `retire_node` old primary `42f2b35133ff` | `2.359089` | Accepted |
+| `adns_set_node_join_policy` P(svn=4) (closes upgrade window) | `3.359116` | Accepted |
+| `adns_set_owner_grant` re-issued mail and worker CVM grants | `3.359156` | Accepted |
+| `adns_ksk_rollover` start (`agent.hosting.`, hold 600s) | `3.360760` | Accepted; double-signature verified |
+| `adns_ksk_rollover` complete (`agent.hosting.`, tag 22434) | `3.361273` | Accepted; KSK rolled over to tag 22434 |
 
 The steward runs every 10 minutes on VM-worker (`agentdns-steward.timer`) with a
 24-hour trap-door window on high-impact proposals. The operator key is now a

@@ -103,14 +103,27 @@ class ChecksTests(unittest.TestCase):
         self.assertFalse(next(c for c in closed if c["name"] == "open_join")["passed"])
         self.assertFalse(next(c for c in closed if c["name"] == "encryption_key")["passed"])
 
-    def test_llm_review_can_block_but_cannot_rescue(self):
+    def test_llm_review_is_advisory_cannot_override_deterministic(self):
+        # Decision 12: Advisory only
         p = {"actions": [{"name": "adns_set_owner_grant", "args": {}}]}
         checks, _ = steward.run_checks(p, compose=composer.compose, live_join_policy=None, highest_accepted_svn=0, params={}, now=0,
-                                       llm=lambda proposal: {"approve": False, "rationale": "grant widens scope"})
-        self.assertFalse(all(c["passed"] for c in checks))
+                                       llm=lambda proposal: {"approve": False, "finding": "grant widens scope"})
+        self.assertTrue(all(c["passed"] for c in checks), "advisory finding does not fail deterministic checks")
+        llm_check = next(c for c in checks if c["name"] == "llm_review")
+        self.assertTrue(llm_check["passed"])
+        self.assertIn("finding: grant widens scope", llm_check["detail"])
+
         bad = {"actions": [{"name": "set_constitution", "args": {"constitution": "nope"}}]}
-        checks, _ = steward.run_checks(bad, compose=composer.compose, live_join_policy=None, highest_accepted_svn=0, params={}, now=0, llm=lambda proposal: {"approve": True, "rationale": "looks fine"})
+        checks, _ = steward.run_checks(bad, compose=composer.compose, live_join_policy=None, highest_accepted_svn=0, params={}, now=0,
+                                       llm=lambda proposal: {"approve": True, "finding": "looks fine"})
         self.assertFalse(all(c["passed"] for c in checks), "a passing LLM review does not override a failed deterministic check")
+
+        # LLM exception/timeout falls back safely
+        def fail_llm(proposal):
+            raise TimeoutError("model timed out")
+        checks, _ = steward.run_checks(p, compose=composer.compose, live_join_policy=None, highest_accepted_svn=0, params={}, now=0, llm=fail_llm)
+        self.assertTrue(all(c["passed"] for c in checks))
+        self.assertIn("skipped due to error", next(c for c in checks if c["name"] == "llm_review")["detail"])
 
 
 class FlowTests(unittest.TestCase):
@@ -155,6 +168,15 @@ class FlowTests(unittest.TestCase):
         self.assertEqual(sorted(o["proposal_id"] for o in out), ["1" * 64, "2" * 64])
         self.assertEqual([a[0]["args"]["proposal_id"] for a in self.ledger.proposed], ["1" * 64, "2" * 64])
         self.assertEqual(steward.settle(self.ledger, self.tmp.name), [])
+
+    def test_trapdoor_email_notification_and_state(self):
+        self.ledger.add("h1" + "0" * 62, [{"name": "adns_set_node_join_policy", "args": join_policy_body(1)}])
+        out = steward.review(self.ledger, self.tmp.name, min_age=36 * 3600, compose=composer.compose, now=1000)
+        self.assertEqual(len(out), 1)
+        self.assertTrue(out[0]["action"].startswith("waiting trap-door window"))
+        state_path = pathlib.Path(self.tmp.name) / "steward-state.json"
+        state = json.loads(state_path.read_text())
+        self.assertIn("h1" + "0" * 62, state.get("notified", {}))
 
     def test_sponsor_builds_set_member_and_governor_actions(self):
         pem = member_cert()

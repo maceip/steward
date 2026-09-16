@@ -49,9 +49,11 @@ the `adns_*` governor actions:
    an unexpired certificate and a recovery key while `open_join` is on. An
    optional LLM reviewer can add a finding but cannot rescue a failed check.
 7. **Trap-door window.** The steward defers its deciding yes on high-impact
-   proposals for `--min-age-seconds` (default 24 h) after first sight, so a
-   human trapdoor can veto. This window is steward policy, not constitution
-   law: CCF's constitution has no clock. Follow-up: a governed clock table.
+   proposals for `--min-age-seconds` (default 36 h; Decision #13) after first
+   sight, and notifies the operator address with the proposal digest and settle
+   time. A human trapdoor can veto by casting a rejecting ballot or withdrawing
+   the proposal before the window elapses. This window is steward policy, not
+   constitution law: CCF's constitution has no clock. Follow-up: a governed clock table.
 8. **Release authority D** stays as designed (ADR 0001 / agent-hosting 0024):
    when set, policies must carry D's signature and the SVN ratchet applies.
 
