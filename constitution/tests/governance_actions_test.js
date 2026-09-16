@@ -323,3 +323,27 @@ test('governance parameters: validated, merged, and reputation is not set by re-
   assert.equal(f.read('public:ccf.gov.agentdns.governors', A).reputation, 7, 'reclassification keeps reputation');
   assert.throws(() => f.invoke('adns_set_governor', {member_id: 'nope', class: 'agent', note: ''}), /64-hex/);
 });
+
+
+test('ksk rollover: start -> complete/abort state machine, exact attestation on complete, app command mirrored', () => {
+  const f = fixture();
+  const start = {zone: 'agent.hosting.', command: 'start', new_key_tag: null, new_ds_sha256: null, minimum_hold_seconds: 7200};
+  assert.throws(() => f.invoke('adns_ksk_rollover', {...start, command: 'complete'}), /integer outside range/, 'complete without tag/DS is rejected');
+  assert.throws(() => f.invoke('adns_ksk_rollover', {...start, new_key_tag: 1}), /tag and DS only with complete/);
+  f.invoke('adns_ksk_rollover', start, 'p1'.padEnd(64, '1'));
+  assert.deepEqual(f.read(lifecycle, 'governance/ksk-rollover/agent.hosting.'), start);
+  assert.equal(f.read('public:ccf.gov.agentdns.ksk_rollover', 'agent.hosting.').stage, 'double-signature');
+  assert.throws(() => f.invoke('adns_ksk_rollover', start), /already in progress/);
+  assert.throws(() => f.invoke('adns_ksk_rollover', {zone: 'agent.hosting.', command: 'complete', new_key_tag: 70000, new_ds_sha256: 'ab'.repeat(32), minimum_hold_seconds: null}), /integer outside range/);
+  assert.throws(() => f.invoke('adns_ksk_rollover', {zone: 'agent.hosting.', command: 'complete', new_key_tag: 5, new_ds_sha256: 'zz', minimum_hold_seconds: null}), /hex/);
+  f.invoke('adns_ksk_rollover', {zone: 'agent.hosting.', command: 'complete', new_key_tag: 59729, new_ds_sha256: '63'.repeat(32), minimum_hold_seconds: null}, 'p2'.padEnd(64, '2'));
+  assert.equal(f.read('public:ccf.gov.agentdns.ksk_rollover', 'agent.hosting.').stage, 'idle');
+  assert.equal(f.read(lifecycle, 'governance/ksk-rollover/agent.hosting.').new_key_tag, 59729);
+  assert.throws(() => f.invoke('adns_ksk_rollover', {zone: 'agent.hosting.', command: 'abort', new_key_tag: null, new_ds_sha256: null, minimum_hold_seconds: null}), /no rollover in progress/);
+  f.invoke('adns_ksk_rollover', start); f.invoke('adns_ksk_rollover', {zone: 'agent.hosting.', command: 'abort', new_key_tag: null, new_ds_sha256: null, minimum_hold_seconds: null});
+  assert.equal(f.read('public:ccf.gov.agentdns.ksk_rollover', 'agent.hosting.').stage, 'idle');
+  // rollover is high impact for resolve()
+  f.member(A);
+  assert.equal(f.resolve([{name: 'adns_ksk_rollover', args: start}], A, [{member_id: A, vote: true}]).state, 'Accepted');
+  assert.equal(f.resolve([{name: 'adns_ksk_rollover', args: start}], A, []).state, 'Open');
+});
