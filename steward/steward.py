@@ -16,7 +16,7 @@ An optional LLM reviewer (`--llm-command`) adds a check named `llm_review`; it c
 add a block finding but never turns a failed deterministic check into a pass.
 
 How the steward "knows" (checks):
-  set_constitution           text == tools/compose_constitution.py output of this checkout
+  set_constitution           text == steward/compose_constitution.py output of this checkout
   adns_set_node_join_policy  svn advances past the highest accepted svn; every host_data
                              equals sha256 of the CCE text the node serves for it
                              (/gov/service/join-policy); UVM/TCB well-formed
@@ -25,7 +25,7 @@ How the steward "knows" (checks):
   adns_set_governor          member exists
   everything else            schema only (validated by the constitution) -> approve
 
-Common member operations use tools/ccf_control.py's Governance client.
+Common member operations use steward/ccf_control.py's Governance client.
 """
 import argparse
 import hashlib

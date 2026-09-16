@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Compose the agentdns constitution deterministically.
 
-    pinned CCF 7.0.15 default actions.js (sha256-checked)
-  + ccf/governance/actions.js        (agentdns actions, release authority, governors)
-  + ccf/governance/exports.js        (validate/apply from the CCF default constitution)
-  + ccf/governance/resolve.js        (reputation-weighted vote rule)
+    constitution/ccf-7.0.15-actions.js  pinned CCF default actions (sha256-checked)
+  + constitution/actions.js             agentdns actions, release authority, governors
+  + constitution/exports.js             validate/apply from the CCF default constitution
+  + constitution/resolve.js             reputation-weighted vote rule
 
 Prints the composed text (or writes --output) and its SHA-256, which is what the
 live `/gov/service/constitution` must serve after a `set_constitution` proposal.
@@ -15,7 +15,7 @@ import json
 import sys
 from pathlib import Path
 
-HERE = Path(__file__).resolve().parent.parent / "ccf" / "governance"
+HERE = Path(__file__).resolve().parent.parent / "constitution"
 PINNED_DEFAULT = "ccf-7.0.15-actions.js"
 PINNED_DEFAULT_SHA256 = "8351bce374f2ffc4a64d94835e79f4faeb45a9aa9c9ca48034d3458b3332c2ff"
 PARTS = (PINNED_DEFAULT, "actions.js", "exports.js", "resolve.js")

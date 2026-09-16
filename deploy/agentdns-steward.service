@@ -1,0 +1,13 @@
+[Unit]
+Description=agentdns steward: review, vote and settle governance proposals (steward ADR 0001)
+After=network-online.target
+[Service]
+Type=oneshot
+User=agenthost
+Group=agenthost
+WorkingDirectory=/opt/steward/src
+ExecStart=/opt/steward/venv/bin/python /opt/steward/src/steward/steward.py review --connect-ip 128.251.125.64 --service-cert /var/lib/agentdns-steward/service_cert.pem --member-key /var/lib/agentdns-steward/member_privk.pem --member-cert /var/lib/agentdns-steward/member_cert.pem --state /var/lib/agentdns-steward --min-age-seconds 86400
+ExecStart=/opt/steward/venv/bin/python /opt/steward/src/steward/steward.py settle --connect-ip 128.251.125.64 --service-cert /var/lib/agentdns-steward/service_cert.pem --member-key /var/lib/agentdns-steward/member_privk.pem --member-cert /var/lib/agentdns-steward/member_cert.pem --state /var/lib/agentdns-steward
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/agentdns-steward
