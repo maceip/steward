@@ -67,3 +67,17 @@ rotation that cannot be hijacked, refusal of rollback, and a public record
 that any client can check. The pins (`infra/trust/pins.json`) must name the
 stack and the keyholders, and the ADRs must say "single-organisation" until a
 second organisation holds a key.
+
+## Addendum: on-chain DAO governance (added after review)
+
+| Stack | Rule | Borrowed |
+|---|---|---|
+| Compound/OpenZeppelin Governor (Governor Bravo, `OpenZeppelin/openzeppelin-contracts` Governor) | token-weighted vote, proposal threshold, quorum, voting delay + period, **timelock** before execution | quorum + threshold framing; the timelock is what our constitution still lacks (no clock) |
+| Optimism two-house (Token House + Citizens' House) and Security Council | bicameral: token vote and a reputation-like citizen house; council with a scoped veto | the trap door as a scoped, loud privileged role |
+| Aragon / Snapshot | off-chain signalling, on-chain execution, per-space rules | not adopted |
+| Conviction voting (1Hive/Gardens), quadratic voting (Gitcoin) | time-weighted or cost-weighted preference | reputation weight with caps is our simpler analogue |
+| Futarchy (MetaDAO) | decision markets | not adopted |
+| Multisig councils (Safe) | m-of-n with delay | veto/override semantics |
+
+Decision taken 2026-09-16: ADR 0025 — reputation-weighted, open-join, agent-led
+with a human trap door, implemented in the agentdns constitution and live.
