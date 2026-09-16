@@ -27,7 +27,17 @@ function fixture() {
       digest: (algorithm, data) => { assert.equal(algorithm, 'SHA-256'); return crypto.createHash('sha256').update(Buffer.from(data)).digest().buffer; },
       verifySignature: (algorithm, pem, signature, data) => {
         assert.deepStrictEqual(JSON.parse(JSON.stringify(algorithm)), {name: 'ECDSA', hash: 'SHA-256'});
-        return crypto.createVerify('sha256').update(Buffer.from(data)).verify({key: pem, dsaEncoding: 'der'}, Buffer.from(signature));
+        const sigBuf = Buffer.from(signature);
+        // CCF's ccf.crypto.verifySignature for ECDSA expects IEEE P1363 raw (64 bytes for P-256).
+        // DER-encoded ASN.1 signatures (starting with 0x30) or incorrect lengths must fail.
+        if (sigBuf.length !== 64 || sigBuf[0] === 0x30) {
+          return false;
+        }
+        try {
+          return crypto.createVerify('sha256').update(Buffer.from(data)).verify({key: pem, dsaEncoding: 'ieee-p1363'}, sigBuf);
+        } catch {
+          return false;
+        }
       },
     },
     kv: new Proxy({}, {get: (_, name) => ({
@@ -66,6 +76,7 @@ function fixture() {
     read(name, key) { return ccf.bufToJsonCompatible(table(name).get(bytes(Buffer.from(key)))); },
     keys(name) { return [...table(name).keys()].map(k => Buffer.from(k, 'hex').toString()); },
     table,
+    ccf,
   };
 }
 // Release authority D for tests: a P-256 key whose signatures use the fixed
@@ -76,7 +87,7 @@ function authority() {
   const canonical = value => { const walk = v => v === null || typeof v === 'boolean' || typeof v === 'string' ? JSON.stringify(v) : typeof v === 'number' ? String(v) : Array.isArray(v) ? '[' + v.map(walk).join(',') + ']' : '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + walk(v[k])).join(',') + '}'; return walk(value); };
   const sign = (svn, payload) => ({did: 'did:x509:0:sha256:abc::eku:1.3.6.1.4.1.311.76.59.1.2', svn,
     signature: crypto.sign('sha256', Buffer.from(canonical({svn, payload})), {key: privateKey, dsaEncoding: 'ieee-p1363'}).toString('base64url')});
-  return {record: {did: 'did:x509:0:sha256:abc::eku:1.3.6.1.4.1.311.76.59.1.2', public_key_pem: pem, svn: 0, valid_from: 0, valid_until: 4000000000}, sign};
+  return {record: {did: 'did:x509:0:sha256:abc::eku:1.3.6.1.4.1.311.76.59.1.2', public_key_pem: pem, svn: 0, valid_from: 0, valid_until: 4000000000}, sign, privateKey};
 }
 function joinPolicy(svn) {
   return {svn, release_id: 'agentdns-v' + svn, measurements: ['ab'.repeat(48)], host_data: ['cd'.repeat(32)],
@@ -346,4 +357,25 @@ test('ksk rollover: start -> complete/abort state machine, exact attestation on 
   f.member(A);
   assert.equal(f.resolve([{name: 'adns_ksk_rollover', args: start}], A, [{member_id: A, vote: true}]).state, 'Accepted');
   assert.equal(f.resolve([{name: 'adns_ksk_rollover', args: start}], A, []).state, 'Open');
+});
+
+test('release authority signature enforces IEEE P1363: DER signature fails', () => {
+  const f = fixture(), D = authority();
+  f.invoke('adns_set_release_authority', {authority: D.record});
+  const first = joinPolicy(1);
+  const canonical = value => { const walk = v => v === null || typeof v === 'boolean' || typeof v === 'string' ? JSON.stringify(v) : typeof v === 'number' ? String(v) : Array.isArray(v) ? '[' + v.map(walk).join(',') + ']' : '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + walk(v[k])).join(',') + '}'; return walk(value); };
+  const derSig = {
+    did: D.record.did,
+    svn: 1,
+    signature: crypto.sign('sha256', Buffer.from(canonical({svn: 1, payload: first})), {key: D.privateKey, dsaEncoding: 'der'}).toString('base64url'),
+  };
+  // Must fail validation when DER signature is provided
+  assert.throws(() => f.invoke('adns_set_node_join_policy', {policy: first, signature: derSig}), /fixed-width|signature invalid/);
+
+  // Directly verify that verifySignature mock rejects DER format and accepts P1363
+  const data = Buffer.from("test");
+  const derBytes = crypto.sign('sha256', data, {key: D.privateKey, dsaEncoding: 'der'});
+  const p1363Bytes = crypto.sign('sha256', data, {key: D.privateKey, dsaEncoding: 'ieee-p1363'});
+  assert.equal(f.ccf.crypto.verifySignature({name: 'ECDSA', hash: 'SHA-256'}, D.record.public_key_pem, derBytes, data), false, 'DER signature must fail verifySignature mock');
+  assert.equal(f.ccf.crypto.verifySignature({name: 'ECDSA', hash: 'SHA-256'}, D.record.public_key_pem, p1363Bytes, data), true, 'P1363 signature must pass verifySignature mock');
 });
