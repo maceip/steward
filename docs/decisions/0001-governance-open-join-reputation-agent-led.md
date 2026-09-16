@@ -54,8 +54,15 @@ the `adns_*` governor actions:
    law: CCF's constitution has no clock. Follow-up: a governed clock table.
 8. **Release authority D** stays as designed (ADR 0001 / agent-hosting 0024):
    when set, policies must carry D's signature and the SVN ratchet applies.
-   Until custody is decided D is unset; under this ADR the consortium's own
-   weighted vote is the release decision.
+
+   *Correction 2026-09-16:* the constitution requires D's signature on
+   `adns_set_node_join_policy` and the appraisal actions whether or not D is
+   set — with D unset they throw. The weighted vote is therefore **not** a
+   substitute for D. The operator decided to mint D (held by the operator,
+   same machine as the trapdoor member key) rather than add a vote-only
+   fallback. Governance is single-organisation by decision until a second
+   party holds a member key; the steward's key moving to a third-provider
+   VPS separates infrastructure, not people.
 
 ## Lineage
 
