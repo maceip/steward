@@ -9,6 +9,7 @@ the agentdns consortium applies for the agent-hosting shared interface
 | `create-zone.json` | `adns_create_zone agent.hosting.` | Private copy of the zone under agentdns governance. Not publicly delegated: Azure DNS remains authoritative until the owner re-delegates (agent-hosting phase 2). Signing material is generated in the enclave. |
 | `grant-mail.json` | `adns_set_owner_grant agent-hosting-mail-20260916` | Subject: SHA-256 of the mail TLS key SPKI (`635e35be…`, the live TLSA 3 1 1 value). Role `mx-edge`, ports 25/465/587/993, address 20.114.5.117/32, attested TXT `_receipt.mail.agent.hosting.`, operations register/renew/deregister/anchor. |
 | `grant-worker.json` | `adns_set_owner_grant agent-hosting-worker-20260916` | Subject: SHA-256 of the worker receipt key SPKI (`cad0e0b4…`, ES256). Role `worker` (no MX contribution), attested TXT `cvm1._domainkey.agent.hosting.` (DKIM) and `_receipt.worker.agent.hosting.`, operations register/renew/deregister/anchor. |
+| `reissue-grants-20260916.json` | `adns_set_owner_grant` for mail and worker | Re-issued grants for CVM deployment: Mail CVM subject SPKI `43facdec…` (168.62.201.66/32) and Worker CVM receipt subject SPKI `f7c6e0c2…` (52.241.250.148/32). Individual files: `reissue-grant-mail-20260916.json` and `reissue-grant-worker-20260916.json`. |
 
 Grants alone authorize nothing: a registration still needs SNP evidence bound
 to the subject key under the zone's appraisal policy. Both agent-hosting hosts

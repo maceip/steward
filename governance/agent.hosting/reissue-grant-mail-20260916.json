@@ -1,0 +1,52 @@
+[
+  {
+    "name": "adns_set_owner_grant",
+    "args": {
+      "grant": {
+        "zones": [
+          "agent.hosting."
+        ],
+        "acme_names": [],
+        "operator_names": [],
+        "operator_record_types": [],
+        "max_challenge_lifetime_seconds": 1800,
+        "valid_from": 1789430400,
+        "valid_until": 1821052800,
+        "revoked": false,
+        "grant_id": "agent-hosting-mail-20260916",
+        "subject_spki_sha256": "43facdec6b1fcdaf1d43851dea20649cbaca8d4be7de031c90769b9c799142ca",
+        "mailbox_domains": [
+          "agent.hosting."
+        ],
+        "service_hosts": [
+          "mail.agent.hosting."
+        ],
+        "roles": [
+          "mx-edge"
+        ],
+        "address_cidrs": [
+          "168.62.201.66/32"
+        ],
+        "ports": [
+          25,
+          465,
+          587,
+          993
+        ],
+        "allowed_operations": [
+          "register",
+          "renew",
+          "deregister",
+          "anchor"
+        ],
+        "attested_names": [
+          "_receipt.mail.agent.hosting."
+        ],
+        "attested_record_types": [
+          "TXT"
+        ],
+        "max_lease_seconds": 86400
+      }
+    }
+  }
+]
