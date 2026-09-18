@@ -107,6 +107,9 @@ function transfer(key_name='old.example.test.') {
 function policy(id=1) {
   return {policy_id:Array(32).fill(id), release_id:'release-1', active_profiles:['azure-aci-snp'], valid_from:1, valid_until:2000000000, max_appraisal_lifetime:600, minimum_tcb:{Milan:{bootloader:1,tee:0,snp:1,microcode:1}}, approved_measurements:['ab'.repeat(48)], approved_host_data:['cd'.repeat(32)], uvm:[]};
 }
+function unifiedQuote() {
+  return {approved_value_x:['ef'.repeat(48)], approved_platforms:['nitro','sev-snp'], require_stage1_chain:true, accepted_eat_profiles:['https://uq.secure.build/eat/v2'], binding_suites:[0]};
+}
 function setPolicy(f, value) { f.invoke('adns_set_appraisal_policy', {zone:'example.test.',policy:value}); }
 
 test('revocation writes permanent mirrored tombstone and preserves replacement', () => {
@@ -142,7 +145,7 @@ test('policy ID is stable across object ordering and exact repeats', () => {
 });
 test('every trust change requires a new policy ID, including historical reuse', () => {
   const f=fixture(), p=policy(); setPolicy(f,p);
-  for(const [key,value] of Object.entries({approved_host_data:['ef'.repeat(32)],approved_measurements:[],minimum_tcb:{},uvm:[{did:'changed',feed:'x',minimum_svn:2}],valid_until:1999999999,active_profiles:[],uvm_endorsement_time_policy:'approved_release'})) {
+  for(const [key,value] of Object.entries({approved_host_data:['ef'.repeat(32)],approved_measurements:[],minimum_tcb:{},uvm:[{did:'changed',feed:'x',minimum_svn:2}],valid_until:1999999999,active_profiles:[],uvm_endorsement_time_policy:'approved_release',unified_quote:unifiedQuote()})) {
     assert.throws(()=>setPolicy(f,{...p,[key]:value}),/new policy_id/);
   }
   const next={...policy(2),approved_host_data:['ef'.repeat(32)]};setPolicy(f,next);
@@ -167,6 +170,21 @@ test('policy identity rejects ambiguous numbers, Unicode and excessive structure
   assert.equal(f.table(policyTable).size,0);
 });
 
+test('appraisal policy accepts optional unified_quote and rejects extra keys', () => {
+  const f=fixture();
+  const withUq={...policy(), unified_quote:unifiedQuote()};
+  setPolicy(f,withUq);
+  setPolicy(f,{...policy(2), uvm_endorsement_time_policy:'approved_release', unified_quote:unifiedQuote()});
+  assert.equal(f.table(policyTable).size,2);
+  assert.throws(()=>setPolicy(f,{...withUq,extra:true}),/unknown or missing field/);
+  assert.throws(()=>setPolicy(f,{...policy(3), unified_quote:{...unifiedQuote(), extra:true}}),/unknown or missing field/);
+  const missing={...unifiedQuote()}; delete missing.binding_suites;
+  assert.throws(()=>setPolicy(f,{...policy(4), unified_quote:missing}),/unknown or missing field/);
+  assert.throws(()=>setPolicy(f,{...policy(5), unified_quote:{...unifiedQuote(), approved_platforms:['aws']}}),/unknown platform/);
+  assert.throws(()=>setPolicy(f,{...policy(6), unified_quote:{...unifiedQuote(), approved_value_x:['zz']}}),/value_x hex48/);
+  assert.throws(()=>setPolicy(f,{...policy(7), unified_quote:{...unifiedQuote(), require_stage1_chain:1}}),/require_stage1_chain boolean/);
+  assert.throws(()=>setPolicy(f,{...policy(8), unified_quote:{...unifiedQuote(), binding_suites:[65536]}}),/integer outside range/);
+});
 
 test('owner grant accepts attested names/types and the anchor operation; mismatched attested fields are rejected', () => {
   const f = fixture();
@@ -174,7 +192,7 @@ test('owner grant accepts attested names/types and the anchor operation; mismatc
   assert.deepEqual(f.read('public:ccf.gov.agentdns.grants', 'mail-owner').attested_names, ['cvm1._domainkey.agent.hosting.', '_receipt.mail.agent.hosting.']);
   const half = grant(); half.attested_record_types = [];
   assert.throws(() => f.invoke('adns_set_owner_grant', {grant: half}), /go together/);
-  const badType = grant(); badType.attested_record_types = ['SVCB'];
+  const badType = grant(); badType.attested_record_types = ['MX'];
   assert.throws(() => f.invoke('adns_set_owner_grant', {grant: badType}), /unknown attested type/);
   const outside = grant(); outside.attested_names = ['cvm1._domainkey.other.'];
   // Rust rejects names outside granted zones; the constitution only checks syntax here.
@@ -378,4 +396,24 @@ test('release authority signature enforces IEEE P1363: DER signature fails', () 
   const p1363Bytes = crypto.sign('sha256', data, {key: D.privateKey, dsaEncoding: 'ieee-p1363'});
   assert.equal(f.ccf.crypto.verifySignature({name: 'ECDSA', hash: 'SHA-256'}, D.record.public_key_pem, derBytes, data), false, 'DER signature must fail verifySignature mock');
   assert.equal(f.ccf.crypto.verifySignature({name: 'ECDSA', hash: 'SHA-256'}, D.record.public_key_pem, p1363Bytes, data), true, 'P1363 signature must pass verifySignature mock');
+});
+
+
+test('Azure CVM policy fields coexist with unified quote and retain exact identity', () => {
+  const cvm={vmpl:0,allowed_ak_ca_subjects:['Azure Cloud Virtual TPM CA - 25'],ak_root_sha256:['ab'.repeat(32)]};
+  const f=fixture();
+  const p={...policy(),active_profiles:['azure-cvm-snp'],azure_cvm:cvm};
+  setPolicy(f,p);
+  assert.throws(()=>setPolicy(f,{...p,azure_cvm:{...cvm,vmpl:1}}),/new policy_id/);
+  setPolicy(f,{...policy(2),azure_cvm:cvm,unified_quote:unifiedQuote()});
+  for(const bad of [{...cvm,vmpl:4},{...cvm,ak_root_sha256:[]},{...cvm,ak_root_sha256:['untrusted']},{...cvm,allowed_ak_ca_subjects:[]},{...cvm,extra:true}]) {
+    assert.throws(()=>setPolicy(f,{...policy(3),azure_cvm:bad}));
+  }
+});
+
+test('attested SVCB grants are compatible while unrelated record types stay rejected', () => {
+  const f=fixture();
+  const g=grant();
+  f.invoke('adns_set_owner_grant',{grant:{...g,attested_record_types:['TXT','SVCB']}});
+  assert.throws(()=>f.invoke('adns_set_owner_grant',{grant:{...g,attested_record_types:['HTTPS']}}),/unknown attested type/);
 });

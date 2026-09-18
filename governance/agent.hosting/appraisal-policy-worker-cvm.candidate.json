@@ -1,0 +1,73 @@
+[
+  {
+    "name": "adns_set_appraisal_policy",
+    "args": {
+      "zone": "agent.hosting.",
+      "policy": {
+        "policy_id": [
+          28,
+          74,
+          157,
+          65,
+          131,
+          179,
+          156,
+          130,
+          224,
+          200,
+          145,
+          59,
+          91,
+          128,
+          51,
+          160,
+          196,
+          128,
+          192,
+          161,
+          18,
+          121,
+          247,
+          38,
+          78,
+          244,
+          102,
+          159,
+          73,
+          39,
+          238,
+          210
+        ],
+        "release_id": "azure-cvm-worker-candidate-20260916",
+        "active_profiles": [
+          "azure-cvm-snp"
+        ],
+        "valid_from": 1789516800,
+        "valid_until": 1792108800,
+        "max_appraisal_lifetime": 3600,
+        "minimum_tcb": {
+          "Genoa": {
+            "bootloader": 10,
+            "tee": 0,
+            "snp": 27,
+            "microcode": 88
+          }
+        },
+        "approved_measurements": [
+          "aa7c9da55c1386e5b1653b125978beda7b3f95a85aeb0f9ddbbdb783ce056a28c9d021da239c34a58c3a657654270eef"
+        ],
+        "approved_host_data": [
+          "0000000000000000000000000000000000000000000000000000000000000000"
+        ],
+        "uvm": [],
+        "azure_cvm": {
+          "vmpl": 0,
+          "allowed_ak_ca_subjects": [
+            "Azure Cloud Virtual TPM CA - 25"
+          ],
+          "ak_root_sha256": []
+        }
+      }
+    }
+  }
+]

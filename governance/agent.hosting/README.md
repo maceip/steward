@@ -1,5 +1,12 @@
 # agent.hosting governance proposals
 
+This is the historical record for Steward's first integration. Transaction
+entries and references to paths in the originating repositories are retained.
+For the general protocol scope and current code assessment, see the
+[project plan](../../docs/design/agent-operated-project-governance.md) and
+[review](../../docs/reviews/governance-protocol-review.md). This record is not
+a fresh verification of the deployed service.
+
 Proposal bodies (JSON action arrays for `tools/ccf_control.py propose`) that
 the agentdns consortium applies for the agent-hosting shared interface
 (agent-hosting ADR 0024, this repo's `docs/decisions/0001-agent-hosting-shared-interface.md`).
@@ -67,6 +74,19 @@ Live application transactions are appended below when performed.
 | `adns_ksk_rollover` start (`agent.hosting.`, hold 600s) | `3.360760` | Accepted; double-signature verified |
 | `adns_ksk_rollover` complete (`agent.hosting.`, tag 22434) | `3.361273` | Accepted; KSK rolled over to tag 22434 |
 
-The steward runs every 10 minutes on VM-worker (`agentdns-steward.timer`) with a
-24-hour trap-door window on high-impact proposals. The operator key is now a
-trapdoor: its `true` ballot overrides, its `false` ballot vetoes, both visible.
+The recorded deployment runs every 10 minutes on VM-worker
+(`agentdns-steward.timer`). As reviewed on 2026-09-17, the checked-in service
+unit and CLI specify a **36-hour** local trap-door window for actions classified
+as high-impact by the agent. This replaces the previous 24-hour description;
+deployed settings were not queried. The recorded operator key is a trapdoor:
+its `true` ballot overrides, its `false` ballot vetoes, both visible. The
+constitution does not enforce the agent's waiting period.
+
+## Preserved reconciliation candidates (2026-09-18)
+
+`reissue-grants-20260916.json` and its individual mail/worker files retain the
+ws/D proposal. `APPRAISAL-CVM.md` and the three `*.candidate.json` files retain
+ws/F. They are historical, unapplied candidates: re-check subjects, addresses,
+validity, AK roots and D signatures before proposing anything. The combined
+appraisal candidate has a stricter TCB floor than the captured worker meets.
+Merging these files does not authorize or execute a governance transaction.

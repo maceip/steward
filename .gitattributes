@@ -1,0 +1,4 @@
+# Constitution bytes are hashed and compared across operating systems.
+constitution/*.js text eol=lf
+# Preserve the source hashes recorded in the verifier experiment report.
+research/agent-verifiers/*.mjs text eol=lf

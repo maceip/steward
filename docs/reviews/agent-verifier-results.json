@@ -1,0 +1,1047 @@
+{
+  "schema": "steward-agent-verifier-experiment/v1",
+  "generated_at": "2026-09-18T10:13:40.178Z",
+  "runtime": "v24.12.0",
+  "platform": "win32",
+  "base_commit": "082d1d9",
+  "source_sha256": {
+    "protocol.mjs": "53585dec6a07469760bfce140a570b3dae4163cef0d3f1284a6c0f2c1528dc87",
+    "lab.mjs": "06d8cf7513b48b464a3b4df17d09c346f9a525beba3f4358edf369331fa679d2",
+    "run.mjs": "480c51010f32b76b5414ec8999c68441cacfba003f554e84d4bc5d8ae225d831"
+  },
+  "method": "Local deterministic agents; real ephemeral Ed25519 keys; simulated time and network availability; no live CCF or deployment.",
+  "summary": {
+    "online": {
+      "cases": 57,
+      "passed": 57,
+      "expected_limitations": 1
+    },
+    "offline": {
+      "cases": 52,
+      "passed": 52,
+      "expected_limitations": 3
+    },
+    "witnessed": {
+      "cases": 60,
+      "passed": 60,
+      "expected_limitations": 1
+    }
+  },
+  "fork_schedules_tested": 16,
+  "results": [
+    {
+      "strategy": "online",
+      "name": "valid agent-authorized upgrade",
+      "expected": "accept",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "second upgrade extends installed state",
+      "expected": "accept:sequence 2",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "tampered artifact bytes",
+      "expected": "reject:ARTIFACT",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "wrong project",
+      "expected": "reject:SCOPE_PROJECT",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "wrong network",
+      "expected": "reject:SCOPE_NETWORK",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "wrong target",
+      "expected": "reject:SCOPE_TARGET",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "wrong action",
+      "expected": "reject:ACTION",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "unsigned policy alteration",
+      "expected": "reject:QUORUM_POLICY",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "different validly signed policy",
+      "expected": "reject:POLICY_DIGEST",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "invalid approving signature",
+      "expected": "reject:QUORUM_RELEASE",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "duplicate signer cannot form quorum",
+      "expected": "reject:QUORUM_RELEASE",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "status agents cannot approve releases",
+      "expected": "reject:QUORUM_RELEASE",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "different keys under one operator count once",
+      "expected": "reject:QUORUM_RELEASE",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "wrong predecessor",
+      "expected": "reject:PREVIOUS_STATE",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "skipped release sequence",
+      "expected": "reject:PREVIOUS_STATE",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "attempted early activation",
+      "expected": "reject:NOT_ACTIVE",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "delay shorter than signed policy",
+      "expected": "reject:DELAY",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "expired release",
+      "expected": "reject:RELEASE_EXPIRED",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "receipt alone has no activation proof",
+      "expected": "reject:PROOF_REQUIRED",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "unrequested proof strategy",
+      "expected": "reject:PROOF_TYPE",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "authenticated revocation",
+      "expected": "reject:REVOKED",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "revoked approving authority no longer counts",
+      "expected": "reject:QUORUM_RELEASE",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "current state names another policy",
+      "expected": "reject:STATUS_POLICY",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "current state names another authorization",
+      "expected": "reject:STATUS_AUTHORIZATION",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "status names an untrusted root",
+      "expected": "reject:STATUS_ROOT",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "status from another project",
+      "expected": "reject:SCOPE_PROJECT",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "status from another network",
+      "expected": "reject:SCOPE_NETWORK",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "status from another target",
+      "expected": "reject:SCOPE_TARGET",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "proof validity exceeds policy",
+      "expected": "reject:PROOF_FRESHNESS",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "future-dated proof",
+      "expected": "reject:PROOF_FRESHNESS",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "proof quorum unavailable",
+      "expected": "reject:QUORUM_STATUS",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "unknown critical release field",
+      "expected": "reject:SCHEMA",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "excessively large evidence field",
+      "expected": "reject:INVALID_STRING",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "proof rechecked at delayed execution",
+      "expected": "reject:PROOF_FRESHNESS",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "artifact rechecked at execution",
+      "expected": "reject:ARTIFACT",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "observed revocation survives an old active proof",
+      "expected": "reject:rollback",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "same status version with different contents",
+      "expected": "reject:equivocation",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "clock moves backwards",
+      "expected": "reject:CLOCK_ROLLBACK",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "root rotation authorized by old and new quorums",
+      "expected": "accept",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "root rotation can be inspected then rechecked at execution",
+      "expected": "accept",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "root rotation preserves an existing upgrade history",
+      "expected": "accept:root 2, sequence 2",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "root rotation signed only by old quorum",
+      "expected": "reject:QUORUM_ROOT",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "root rotation signed only by new quorum",
+      "expected": "reject:QUORUM_ROOT",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "skipped root version",
+      "expected": "reject:ROOT_CHAIN",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "expired trust root",
+      "expected": "reject:ROOT_EXPIRED",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "valid root update cannot lower quorum below consumer floor",
+      "expected": "reject:INVALID_NUMBER",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "accepted root update survives denied activation",
+      "expected": "reject:QUORUM_POLICY under retired root",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "replay rejected after saved-state restart",
+      "expected": "reject:PREVIOUS_STATE",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "historical receipt stays valid after revocation",
+      "expected": "receipt-valid; upgrade-rejected",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "revocation after permit issuance before effect",
+      "expected": "reject:GATE_STATUS_CHANGED",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "partition and hidden revocation",
+      "expected": "reject:no online evidence",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "reply cannot satisfy another request nonce",
+      "expected": "reject:CHALLENGE",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "old challenge invalid after consumer restart",
+      "expected": "reject:CHALLENGE",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "valid agent-authorized upgrade",
+      "expected": "accept",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "second upgrade extends installed state",
+      "expected": "accept:sequence 2",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "tampered artifact bytes",
+      "expected": "reject:ARTIFACT",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "wrong project",
+      "expected": "reject:SCOPE_PROJECT",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "wrong network",
+      "expected": "reject:SCOPE_NETWORK",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "wrong target",
+      "expected": "reject:SCOPE_TARGET",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "wrong action",
+      "expected": "reject:ACTION",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "unsigned policy alteration",
+      "expected": "reject:QUORUM_POLICY",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "different validly signed policy",
+      "expected": "reject:POLICY_DIGEST",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "invalid approving signature",
+      "expected": "reject:QUORUM_RELEASE",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "duplicate signer cannot form quorum",
+      "expected": "reject:QUORUM_RELEASE",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "status agents cannot approve releases",
+      "expected": "reject:QUORUM_RELEASE",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "different keys under one operator count once",
+      "expected": "reject:QUORUM_RELEASE",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "wrong predecessor",
+      "expected": "reject:PREVIOUS_STATE",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "skipped release sequence",
+      "expected": "reject:PREVIOUS_STATE",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "attempted early activation",
+      "expected": "reject:NOT_ACTIVE",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "delay shorter than signed policy",
+      "expected": "reject:DELAY",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "expired release",
+      "expected": "reject:RELEASE_EXPIRED",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "receipt alone has no activation proof",
+      "expected": "reject:PROOF_REQUIRED",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "unrequested proof strategy",
+      "expected": "reject:PROOF_TYPE",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "authenticated revocation",
+      "expected": "reject:REVOKED",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "revoked approving authority no longer counts",
+      "expected": "reject:QUORUM_RELEASE",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "current state names another policy",
+      "expected": "reject:STATUS_POLICY",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "current state names another authorization",
+      "expected": "reject:STATUS_AUTHORIZATION",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "status names an untrusted root",
+      "expected": "reject:STATUS_ROOT",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "status from another project",
+      "expected": "reject:SCOPE_PROJECT",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "status from another network",
+      "expected": "reject:SCOPE_NETWORK",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "status from another target",
+      "expected": "reject:SCOPE_TARGET",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "proof validity exceeds policy",
+      "expected": "reject:PROOF_FRESHNESS",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "future-dated proof",
+      "expected": "reject:PROOF_FRESHNESS",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "proof quorum unavailable",
+      "expected": "reject:QUORUM_STATUS",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "unknown critical release field",
+      "expected": "reject:SCHEMA",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "excessively large evidence field",
+      "expected": "reject:INVALID_STRING",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "proof rechecked at delayed execution",
+      "expected": "reject:PROOF_FRESHNESS",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "artifact rechecked at execution",
+      "expected": "reject:ARTIFACT",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "observed revocation survives an old active proof",
+      "expected": "reject:rollback",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "same status version with different contents",
+      "expected": "reject:equivocation",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "clock moves backwards",
+      "expected": "reject:CLOCK_ROLLBACK",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "root rotation authorized by old and new quorums",
+      "expected": "accept",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "root rotation can be inspected then rechecked at execution",
+      "expected": "accept",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "root rotation preserves an existing upgrade history",
+      "expected": "accept:root 2, sequence 2",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "root rotation signed only by old quorum",
+      "expected": "reject:QUORUM_ROOT",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "root rotation signed only by new quorum",
+      "expected": "reject:QUORUM_ROOT",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "skipped root version",
+      "expected": "reject:ROOT_CHAIN",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "expired trust root",
+      "expected": "reject:ROOT_EXPIRED",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "valid root update cannot lower quorum below consumer floor",
+      "expected": "reject:INVALID_NUMBER",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "accepted root update survives denied activation",
+      "expected": "reject:QUORUM_POLICY under retired root",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "replay rejected after saved-state restart",
+      "expected": "reject:PREVIOUS_STATE",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "historical receipt stays valid after revocation",
+      "expected": "receipt-valid; upgrade-rejected",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "revocation after permit issuance before effect",
+      "expected": "LIMITATION:accept cached proof within lease",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "partition and hidden revocation",
+      "expected": "LIMITATION:accept cached snapshot before expiry",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "valid agent-authorized upgrade",
+      "expected": "accept",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "second upgrade extends installed state",
+      "expected": "accept:sequence 2",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "tampered artifact bytes",
+      "expected": "reject:ARTIFACT",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "wrong project",
+      "expected": "reject:SCOPE_PROJECT",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "wrong network",
+      "expected": "reject:SCOPE_NETWORK",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "wrong target",
+      "expected": "reject:SCOPE_TARGET",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "wrong action",
+      "expected": "reject:ACTION",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "unsigned policy alteration",
+      "expected": "reject:QUORUM_POLICY",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "different validly signed policy",
+      "expected": "reject:POLICY_DIGEST",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "invalid approving signature",
+      "expected": "reject:QUORUM_RELEASE",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "duplicate signer cannot form quorum",
+      "expected": "reject:QUORUM_RELEASE",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "status agents cannot approve releases",
+      "expected": "reject:QUORUM_RELEASE",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "different keys under one operator count once",
+      "expected": "reject:QUORUM_RELEASE",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "wrong predecessor",
+      "expected": "reject:PREVIOUS_STATE",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "skipped release sequence",
+      "expected": "reject:PREVIOUS_STATE",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "attempted early activation",
+      "expected": "reject:NOT_ACTIVE",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "delay shorter than signed policy",
+      "expected": "reject:DELAY",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "expired release",
+      "expected": "reject:RELEASE_EXPIRED",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "receipt alone has no activation proof",
+      "expected": "reject:PROOF_REQUIRED",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "unrequested proof strategy",
+      "expected": "reject:PROOF_TYPE",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "authenticated revocation",
+      "expected": "reject:REVOKED",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "revoked approving authority no longer counts",
+      "expected": "reject:QUORUM_RELEASE",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "current state names another policy",
+      "expected": "reject:STATUS_POLICY",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "current state names another authorization",
+      "expected": "reject:STATUS_AUTHORIZATION",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "status names an untrusted root",
+      "expected": "reject:LOG_ROOT",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "status from another project",
+      "expected": "reject:SCOPE_PROJECT",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "status from another network",
+      "expected": "reject:SCOPE_NETWORK",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "status from another target",
+      "expected": "reject:SCOPE_TARGET",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "proof validity exceeds policy",
+      "expected": "reject:PROOF_FRESHNESS",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "future-dated proof",
+      "expected": "reject:PROOF_FRESHNESS",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "proof quorum unavailable",
+      "expected": "reject:QUORUM_WITNESS",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "unknown critical release field",
+      "expected": "reject:SCHEMA",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "excessively large evidence field",
+      "expected": "reject:INVALID_STRING",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "proof rechecked at delayed execution",
+      "expected": "reject:PROOF_FRESHNESS",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "artifact rechecked at execution",
+      "expected": "reject:ARTIFACT",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "observed revocation survives an old active proof",
+      "expected": "reject:rollback",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "same status version with different contents",
+      "expected": "reject:equivocation",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "clock moves backwards",
+      "expected": "reject:CLOCK_ROLLBACK",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "root rotation authorized by old and new quorums",
+      "expected": "accept",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "root rotation can be inspected then rechecked at execution",
+      "expected": "accept",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "root rotation preserves an existing upgrade history",
+      "expected": "accept:root 2, sequence 2",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "root rotation signed only by old quorum",
+      "expected": "reject:QUORUM_ROOT",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "root rotation signed only by new quorum",
+      "expected": "reject:QUORUM_ROOT",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "skipped root version",
+      "expected": "reject:ROOT_CHAIN",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "expired trust root",
+      "expected": "reject:ROOT_EXPIRED",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "valid root update cannot lower quorum below consumer floor",
+      "expected": "reject:INVALID_NUMBER",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "accepted root update survives denied activation",
+      "expected": "reject:QUORUM_POLICY under retired root",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "replay rejected after saved-state restart",
+      "expected": "reject:PREVIOUS_STATE",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "historical receipt stays valid after revocation",
+      "expected": "receipt-valid; upgrade-rejected",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "revocation after permit issuance before effect",
+      "expected": "LIMITATION:accept cached proof within lease",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "partition and hidden revocation",
+      "expected": "reject:no online evidence",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "reply cannot satisfy another request nonce",
+      "expected": "reject:CHALLENGE",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "old challenge invalid after consumer restart",
+      "expected": "reject:CHALLENGE",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "cached positive result cannot bypass commit gate",
+      "expected": "reject:COMMIT_GATE_REQUIRED",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "two activation attempts consume only once",
+      "expected": "reject:PREVIOUS_STATE",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "another consumer cannot reuse a consumed permit",
+      "expected": "reject:GATE_REPLAY",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "one unavailable witness still permits activation",
+      "expected": "accept:3-of-4",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "tampered historical event",
+      "expected": "reject:QUORUM_STATUS",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "omitted revocation event under a newer checkpoint",
+      "expected": "reject:CHECKPOINT_BINDING",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "witness remembers its checkpoint across restart",
+      "expected": "reject:LOG_FORK",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "revocation cannot disappear in a later log state",
+      "expected": "reject:LOG_REVOCATION_ROLLBACK",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "revoked authorization cannot be silently reactivated",
+      "expected": "reject:LOG_REACTIVATION",
+      "passed": true
+    },
+    {
+      "strategy": "witnessed",
+      "name": "conflicting checkpoints with one Byzantine witness",
+      "expected": "reject second quorum in all 16 schedules",
+      "passed": true
+    },
+    {
+      "strategy": "online",
+      "name": "fresh consumers cannot detect a signed split view alone",
+      "expected": "LIMITATION:both inspections accept",
+      "passed": true
+    },
+    {
+      "strategy": "offline",
+      "name": "fresh consumers cannot detect a signed split view alone",
+      "expected": "LIMITATION:both inspections accept",
+      "passed": true
+    }
+  ]
+}

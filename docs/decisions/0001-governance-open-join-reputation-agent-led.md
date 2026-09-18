@@ -1,5 +1,16 @@
 # 0002 — Governance: open-join, reputation-weighted, agent-led, with a human trap door
 
+Review annotation, 2026-09-17: this is the existing AgentDNS governance
+decision, retained under its original ADR title after extraction. Several
+claims below differ from code at `082d1d9`: the weight caps have counterexamples;
+the LLM hook is advisory and cannot block; appraisal policy has an unsigned
+pre-D path; the wait is local agent policy. See the
+[protocol review](../reviews/governance-protocol-review.md) for evidence.
+The [general project plan](../design/agent-operated-project-governance.md)
+proposes an agent-operated profile without the unrestricted human override;
+that profile is not yet implemented or deployed. Paths below retain historical
+references to the source repositories.
+
 Status: accepted 2026-09-16 (both repositories; agent-hosting ADR 0025 is the
 consumer statement). Replaces the CCF sandbox `resolve()` that accepted every
 proposal. Implements what `scitt-ccf-ledger` and agent-hosting's
