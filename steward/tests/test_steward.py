@@ -128,6 +128,11 @@ class ChecksTests(unittest.TestCase):
 
 class FlowTests(unittest.TestCase):
     def setUp(self):
+        # Unit tests must never invoke the operator's real sendmail command.
+        from unittest.mock import patch
+        notification = patch.object(steward, "notify_trapdoor_email", return_value=True)
+        self.notification = notification.start()
+        self.addCleanup(notification.stop)
         self.tmp = tempfile.TemporaryDirectory()
         self.ledger = FakeLedger()
 

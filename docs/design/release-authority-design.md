@@ -1,5 +1,13 @@
 # Release authority D: what it means to be our own authority
 
+Historical design research imported from agent-hosting. Statements about
+"today", undecided custody and implementation status below describe the
+original investigation, not the current repository or a verified deployment.
+See the [2026-09-17 review](../reviews/governance-protocol-review.md) for
+implementation findings and the [project governance plan](agent-operated-project-governance.md)
+for the proposed general scope. In particular, a SCITT registration receipt
+does not by itself establish per-release member approval or an advancing SVN.
+
 Status: homework for the org decision on ADR 0023/0024 item 9, 2026-09-16.
 Nothing here is implemented; ADR 0024 stays "custody undecided" until this is
 decided.

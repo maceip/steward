@@ -1,5 +1,11 @@
 # Governance stacks we could copy — survey beyond CCF
 
+Historical survey imported from agent-hosting. The "Today" column, activity
+claims and effort estimates are preserved as the original investigation.
+Use the [2026-09-17 review](../reviews/governance-protocol-review.md) for the
+current code assessment and refreshed analogs, and the
+[adoption plan](agent-operated-project-governance.md) for project-wide scope.
+
 Status: homework for the release-authority decision (companion to
 `release-authority-design.md`), 2026-09-16. Every "active" claim below was
 checked against the project's latest commit date or live page on 2026-09-16.

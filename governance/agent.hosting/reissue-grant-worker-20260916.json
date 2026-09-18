@@ -1,0 +1,50 @@
+[
+  {
+    "name": "adns_set_owner_grant",
+    "args": {
+      "grant": {
+        "zones": [
+          "agent.hosting."
+        ],
+        "acme_names": [],
+        "operator_names": [],
+        "operator_record_types": [],
+        "max_challenge_lifetime_seconds": 1800,
+        "valid_from": 1789430400,
+        "valid_until": 1821052800,
+        "revoked": false,
+        "grant_id": "agent-hosting-worker-20260916",
+        "subject_spki_sha256": "f7c6e0c20e96dd7f7947faa39c9782961e7818083ce4cc0158fec0ecd62ef47b",
+        "mailbox_domains": [
+          "agent.hosting."
+        ],
+        "service_hosts": [
+          "worker.agent.hosting."
+        ],
+        "roles": [
+          "worker"
+        ],
+        "address_cidrs": [
+          "52.241.250.148/32"
+        ],
+        "ports": [
+          8443
+        ],
+        "allowed_operations": [
+          "register",
+          "renew",
+          "deregister",
+          "anchor"
+        ],
+        "attested_names": [
+          "cvm1._domainkey.agent.hosting.",
+          "_receipt.worker.agent.hosting."
+        ],
+        "attested_record_types": [
+          "TXT"
+        ],
+        "max_lease_seconds": 86400
+      }
+    }
+  }
+]
